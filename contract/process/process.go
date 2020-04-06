@@ -13,6 +13,8 @@ const (
 	Completed
 )
 
+const MaxSourcingDepth = 20
+
 var stateNames = []string{"InProcess", "Completed"}
 
 func (s State) String() string {
@@ -35,9 +37,10 @@ type Process struct {
 	CompleteTime     int64  `json:"completeTime"`
 	StartPosition    string `json:"startPosition"`
 	CompletePosition string `json:"completePosition"`
-	PreKey           string `json:"preKey"`
+	PreKey           []string `json:"preKey"`
 	State            State  `json:"state"`
 	Class            string `json:"class"`
+	Key				 string `json:"key"`
 }
 
 func (p *Process) Serialize() ([]byte, error) {

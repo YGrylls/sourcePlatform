@@ -8,7 +8,7 @@ import (
 type ProcessLedger interface {
 	AddProcess(key string, process *Process) error
 	GetProcess(key string) (*Process, error)
-	UpdateProcess(process *Process) error
+	UpdateProcess(key string, process *Process) error
 }
 
 func newLedger(ctx contractapi.TransactionContextInterface) ProcessLedger {
@@ -40,8 +40,8 @@ func (p *processLedger) GetProcess(key string) (*Process, error) {
 	return process, nil
 }
 
-func (p *processLedger) UpdateProcess(process *Process) error {
-	panic("implement me")
+func (p *processLedger) UpdateProcess(key string, process *Process) error {
+	return p.AddProcess(key,process)
 }
 
 const KeySplit = ":"

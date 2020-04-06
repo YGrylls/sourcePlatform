@@ -1,6 +1,7 @@
 package process
 
 import (
+	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -17,6 +18,8 @@ type TransactionContext struct {
 
 //todo
 func (t *TransactionContext) CheckOrgValid(org string) bool {
+	id, _:=t.GetClientIdentity().GetID()
+	fmt.Println(id)
 	return true
 }
 
