@@ -38,6 +38,7 @@ type Process struct {
 	StartPosition    string `json:"startPosition"`
 	CompletePosition string `json:"completePosition"`
 	PreKey           []string `json:"preKey"`
+	Spec			 string `json:"spec"`
 	State            State  `json:"state"`
 	Class            string `json:"class"`
 	Key				 string `json:"key"`

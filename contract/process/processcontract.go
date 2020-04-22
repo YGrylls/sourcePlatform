@@ -15,7 +15,7 @@ func (c *Contract) Instantiate() {
 }
 
 //--------Create a new process
-func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId string, ownerOrg string, optionName string, startTime int64, startPosition string, preKey []string) (string, error) {
+func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId string, ownerOrg string, optionName string, startTime int64, startPosition string, preKey []string, spec string) (string, error) {
 	if !ctx.CheckOrgValid(ownerOrg) {
 		return "", perror.New("Org check failed")
 	}
@@ -27,6 +27,7 @@ func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId 
 	process.StartTime = startTime
 	process.StartPosition = startPosition
 	process.OptionName = optionName
+	process.Spec = spec
 	preKeyField, err := c.createPreKeySlice(ctx, preKey)
 	if err!=nil{
 		return "",err
