@@ -1,6 +1,7 @@
 package process
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	perror "github.com/pkg/errors"
@@ -15,7 +16,7 @@ func (c *Contract) Instantiate() {
 }
 
 //--------Create a new process
-func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId string, ownerOrg string, optionName string, startTime int64, startPosition string, preKey []string, spec string) (string, error) {
+func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId string, ownerOrg string, optionName string, startTime int64, startPosition string, preKey string, spec string) (string, error) {
 	if !ctx.CheckOrgValid(ownerOrg) {
 		return "", perror.New("Org check failed")
 	}
@@ -28,7 +29,14 @@ func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId 
 	process.StartPosition = startPosition
 	process.OptionName = optionName
 	process.Spec = spec
-	preKeyField, err := c.createPreKeySlice(ctx, preKey)
+	preKeys := make([]string, 0)
+	if preKey != "" && preKey != "[]"{
+		arrayErr := json.Unmarshal([]byte(preKey),&preKeys)
+		if arrayErr !=nil{
+			return "", perror.New("PreKey array parsing failed")
+		}
+	}
+	preKeyField, err := c.createPreKeySlice(ctx, preKeys)
 	if err!=nil{
 		return "",err
 	}else {
