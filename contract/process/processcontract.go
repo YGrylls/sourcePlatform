@@ -164,7 +164,7 @@ func (c *Contract) createPreKeySlice(ctx TransactionContextInterface, preKey []s
 		}
 		return preKeyField,nil
 	}
-	return nil, nil
+	return make([]string,0), nil
 }
 
 func stringToArray(preKey string) ([]string,error) {
