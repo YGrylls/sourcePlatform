@@ -29,12 +29,9 @@ func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId 
 	process.StartPosition = startPosition
 	process.OptionName = optionName
 	process.Spec = spec
-	preKeys := make([]string, 0)
-	if preKey != "" && preKey != "[]"{
-		arrayErr := json.Unmarshal([]byte(preKey),&preKeys)
-		if arrayErr !=nil{
-			return "", perror.New("PreKey array parsing failed")
-		}
+	preKeys, parsingErr := stringToArray(preKey)
+	if parsingErr!=nil{
+		return "",parsingErr
 	}
 	preKeyField, err := c.createPreKeySlice(ctx, preKeys)
 	if err!=nil{
@@ -63,7 +60,7 @@ func (c *Contract) CompleteProcess(ctx TransactionContextInterface, key string, 
 }
 
 //--------Link an existing process to its previous ones, WILL OVERWRITE if preKey field already exists
-func (c *Contract) LinkProcess(ctx TransactionContextInterface, key string, preKey []string) error {
+func (c *Contract) LinkProcess(ctx TransactionContextInterface, key string, preKey string) error {
 	// current process
 	process,err := c.QueryProcess(ctx, key)
 	if err!=nil{
@@ -72,7 +69,11 @@ func (c *Contract) LinkProcess(ctx TransactionContextInterface, key string, preK
 	if !ctx.CheckOrgValid(process.OwnerOrg) {
 		return perror.New("Org check failed")
 	}
-	preKeyField, err:= c.createPreKeySlice(ctx, preKey)
+	preKeys, parsingErr := stringToArray(preKey)
+	if parsingErr!=nil{
+		return parsingErr
+	}
+	preKeyField, err:= c.createPreKeySlice(ctx, preKeys)
 	if err!=nil{
 		return err
 	}
@@ -81,7 +82,7 @@ func (c *Contract) LinkProcess(ctx TransactionContextInterface, key string, preK
 }
 
 //--------Link an existing process to its previous ones, WILL APPEND if preKey field already exists
-func (c *Contract) AddLinkedProcess(ctx TransactionContextInterface, key string, preKey []string) error {
+func (c *Contract) AddLinkedProcess(ctx TransactionContextInterface, key string, preKey string) error {
 	// current process
 	process,err := c.QueryProcess(ctx, key)
 	if err!=nil{
@@ -90,7 +91,11 @@ func (c *Contract) AddLinkedProcess(ctx TransactionContextInterface, key string,
 	if !ctx.CheckOrgValid(process.OwnerOrg) {
 		return perror.New("Org check failed")
 	}
-	preKeyField, err:= c.createPreKeySlice(ctx, preKey)
+	preKeys, parsingErr := stringToArray(preKey)
+	if parsingErr!=nil{
+		return parsingErr
+	}
+	preKeyField, err:= c.createPreKeySlice(ctx, preKeys)
 	if err!=nil{
 		return err
 	}
@@ -160,4 +165,15 @@ func (c *Contract) createPreKeySlice(ctx TransactionContextInterface, preKey []s
 		return preKeyField,nil
 	}
 	return nil, nil
+}
+
+func stringToArray(preKey string) ([]string,error) {
+	preKeys := make([]string, 0)
+	if preKey != "" && preKey != "[]"{
+		arrayErr := json.Unmarshal([]byte(preKey),&preKeys)
+		if arrayErr !=nil{
+			return nil, perror.New("PreKey array parsing failed")
+		}
+	}
+	return preKeys,nil
 }

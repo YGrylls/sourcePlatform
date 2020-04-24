@@ -16,13 +16,13 @@ type TransactionContext struct {
 	ledger ProcessLedger
 }
 
+const readonlyOrgMSP = "QueryMSP"
 //todo
+//to check if the client is from a query org or if it is operating a process belonging to others
 func (t *TransactionContext) CheckOrgValid(org string) bool {
 	id, _:=t.GetClientIdentity().GetMSPID()
 	fmt.Println("MSPID: ",id)
-	creator, _ := t.GetStub().GetCreator()
-	fmt.Println("creator: ", string(creator))
-	return true
+	return id==org || id==readonlyOrgMSP
 }
 
 func (t *TransactionContext) GetProcessLedger() ProcessLedger {
