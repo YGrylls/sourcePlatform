@@ -18,8 +18,10 @@ type TransactionContext struct {
 
 //todo
 func (t *TransactionContext) CheckOrgValid(org string) bool {
-	id, _:=t.GetClientIdentity().GetID()
-	fmt.Println(id)
+	id, _:=t.GetClientIdentity().GetMSPID()
+	fmt.Println("MSPID: ",id)
+	creator, _ := t.GetStub().GetCreator()
+	fmt.Println("creator: ", string(creator))
 	return true
 }
 

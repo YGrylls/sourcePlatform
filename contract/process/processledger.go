@@ -3,6 +3,7 @@ package process
 import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"strings"
+	"unicode/utf8"
 )
 
 type ProcessLedger interface {
@@ -45,6 +46,8 @@ func (p *processLedger) UpdateProcess(key string, process *Process) error {
 }
 
 const KeySplit = ":"
+const maxUnicodeRuneValue   = utf8.MaxRune
+
 
 func CreateCompositeKey(org string, localId string) string {
 	return strings.Join([]string{org, localId}, KeySplit)
