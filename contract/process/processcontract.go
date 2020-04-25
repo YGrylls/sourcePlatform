@@ -47,8 +47,9 @@ func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId 
 
 //--------Complete a new process
 func (c *Contract) CompleteProcess(ctx TransactionContextInterface, key string, completeTime int64, completePosition string) error {
-	process, err := c.QueryProcess(ctx,key)
-	if err!=nil {
+	//MSPID is needed to check auth, so cannot call QueryProcess here which may replace ownerOrg with display name
+	process,err := ctx.GetProcessLedger().GetProcess(key)
+	if err != nil{
 		return err
 	}
 	if !ctx.CheckOrgValid(process.OwnerOrg) {
@@ -62,10 +63,10 @@ func (c *Contract) CompleteProcess(ctx TransactionContextInterface, key string, 
 
 //--------Link an existing process to its previous ones, WILL OVERWRITE if preKey field already exists
 func (c *Contract) LinkProcess(ctx TransactionContextInterface, key string, preKey string) error {
-	// current process
-	process,err := c.QueryProcess(ctx, key)
-	if err!=nil{
-		return perror.Errorf("Current process not exist. %s", err)
+	//MSPID is needed to check auth, so cannot call QueryProcess here which may replace ownerOrg with display name
+	process,err := ctx.GetProcessLedger().GetProcess(key)
+	if err != nil{
+		return err
 	}
 	if !ctx.CheckOrgValid(process.OwnerOrg) {
 		return perror.New("Org check failed")
@@ -84,10 +85,10 @@ func (c *Contract) LinkProcess(ctx TransactionContextInterface, key string, preK
 
 //--------Link an existing process to its previous ones, WILL APPEND if preKey field already exists
 func (c *Contract) AddLinkedProcess(ctx TransactionContextInterface, key string, preKey string) error {
-	// current process
-	process,err := c.QueryProcess(ctx, key)
-	if err!=nil{
-		return perror.Errorf("Current process not exist. %s", err)
+	//MSPID is needed to check auth, so cannot call QueryProcess here which may replace ownerOrg with display name
+	process,err := ctx.GetProcessLedger().GetProcess(key)
+	if err != nil{
+		return err
 	}
 	if !ctx.CheckOrgValid(process.OwnerOrg) {
 		return perror.New("Org check failed")
