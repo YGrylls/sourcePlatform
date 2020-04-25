@@ -10,6 +10,8 @@ type ProcessLedger interface {
 	AddProcess(key string, process *Process) error
 	GetProcess(key string) (*Process, error)
 	UpdateProcess(key string, process *Process) error
+	UpdateDisplayName(org string, displayName string) error
+	GetDisplayName(org string) (string ,error)
 }
 
 func newLedger(ctx contractapi.TransactionContextInterface) ProcessLedger {
@@ -18,6 +20,19 @@ func newLedger(ctx contractapi.TransactionContextInterface) ProcessLedger {
 
 type processLedger struct {
 	ctx contractapi.TransactionContextInterface
+}
+
+func (p *processLedger) GetDisplayName(org string) (string, error) {
+	bytes, err := p.ctx.GetStub().GetState(org)
+	if err != nil {
+		return "",err
+	}
+	return string(bytes), nil
+}
+
+func (p *processLedger) UpdateDisplayName(org string, displayName string) error {
+	bytes := []byte(displayName)
+	return p.ctx.GetStub().PutState(org, bytes)
 }
 
 func (p *processLedger) AddProcess(key string, process *Process) error {
@@ -44,6 +59,7 @@ func (p *processLedger) GetProcess(key string) (*Process, error) {
 func (p *processLedger) UpdateProcess(key string, process *Process) error {
 	return p.AddProcess(key,process)
 }
+
 
 const KeySplit = ":"
 const maxUnicodeRuneValue   = utf8.MaxRune

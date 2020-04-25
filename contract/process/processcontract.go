@@ -16,9 +16,10 @@ func (c *Contract) Instantiate() {
 }
 
 //--------Create a new process
-func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId string, ownerOrg string, optionName string, startTime int64, startPosition string, preKey string, spec string) (string, error) {
-	if !ctx.CheckOrgValid(ownerOrg) {
-		return "", perror.New("Org check failed")
+func (c *Contract) StartProcess(ctx TransactionContextInterface, processLocalId string, optionName string, startTime int64, startPosition string, preKey string, spec string) (string, error) {
+	ownerOrg, orgErr := ctx.GetOrg()
+	if orgErr != nil {
+		return "", perror.Errorf("Get org info error. %s", orgErr)
 	}
 	process := &Process{}
 	process.ProcessLocalId=processLocalId
@@ -108,8 +109,21 @@ func (c *Contract) AddLinkedProcess(ctx TransactionContextInterface, key string,
 	return ctx.GetProcessLedger().UpdateProcess(key, process)
 }
 
+//-----------Query a process, the org field will be replaced with org's display name
 func (c *Contract) QueryProcess(ctx TransactionContextInterface, key string) (*Process, error) {
-	return ctx.GetProcessLedger().GetProcess(key)
+	process,err := ctx.GetProcessLedger().GetProcess(key)
+	if err != nil{
+		return nil, err
+	}
+	name, nameErr := c.GetDisplayName(ctx,process.OwnerOrg)
+	if nameErr != nil {
+		return nil, nameErr
+	}
+	//replace the ownerOrg field with display name
+	if name != ""{
+		process.OwnerOrg = name
+	}
+	return process,nil
 }
 
 //---------Get the previous processes within depth of 1
@@ -150,6 +164,23 @@ func (c *Contract) DigProcess(ctx TransactionContextInterface, key string, depth
 		preProcess=append(preProcess,process)
 	}
 	return preProcess,nil
+}
+
+//----------Update org display name into the ledger
+func (c *Contract) UpdateDisplayName(ctx TransactionContextInterface, displayName string) error{
+	ownerOrg, orgErr := ctx.GetOrg()
+	if orgErr != nil {
+		return perror.Errorf("Get org info error. %s", orgErr)
+	}
+	if len(displayName)>32{
+		return perror.New("Display name format error")
+	}
+	return ctx.GetProcessLedger().UpdateDisplayName(ownerOrg, displayName)
+}
+
+//----------Get org display name
+func (c *Contract) GetDisplayName(ctx TransactionContextInterface, org string) (string,error) {
+	return ctx.GetProcessLedger().GetDisplayName(org)
 }
 
 func (c *Contract) createPreKeySlice(ctx TransactionContextInterface, preKey []string ) ([]string, error){
